@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>زعفران آنلاین — فروشگاه</title>
+<style>
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --accent:#ce7b00;
+  --muted:#94a3b8;
+  --glass: rgba(255,255,255,0.03);
+  --radius:14px;
+  --maxw:1100px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:system-ui,-apple-system,'Segoe UI','Helvetica Neue',Arial;
+  background:linear-gradient(180deg,#071028 0%,#081424 60%);
+  color:#e6eef8;display:flex;align-items:flex-start;justify-content:center;padding:24px;
+}
+.app{width:100%;max-width:var(--maxw)}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ffb86b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#07203a}
+h1{font-size:20px;margin:0}
+p.lead{margin:0;color:var(--muted);font-size:13px}
+main{display:grid;grid-template-columns:1fr 360px;gap:18px}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+.p-image{height:140px;border-radius:10px;background-size:cover;background-position:center;margin-bottom:10px}
+.p-title{font-weight:700;margin:0 0 6px}
+.p-desc{font-size:13px;color:var(--muted);margin:0 0 8px}
+.p-footer{display:flex;align-items:center;justify-content:space-between}
+.price{font-weight:800;color:var(--accent)}
+button{background:var(--accent);border:0;color:#07203a;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+aside .card{position:sticky;top:24px}
+.cart-list{max-height:320px;overflow:auto;margin-bottom:12px}
+.cart-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;background:var(--glass);margin-bottom:8px}
+.cart-item img{width:56px;height:48px;object-fit:cover;border-radius:8px}
+.qty{display:flex;align-items:center;gap:6px}
+.admin-bar{display:flex;gap:8px;align-items:center}
+.chip{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:9px;font-size:13px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(0deg, rgba(2,6,23,0.6), rgba(2,6,23,0.6));}
+.modal.open{display:flex}
+.modal .card{width:420px}
+label{display:block;font-size:13px;margin-bottom:6px}
+input,textarea,select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+@media(max-width:980px){main{grid-template-columns:1fr} aside{order:-1;margin-bottom:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div class="brand">
+<div class="logo">زع</div>
+<div>
+<h1>زعفران آنلاین</h1>
+<p class="lead">زعفران ارگانیک — بسته‌بندی شکیل — ارسال سریع</p>
+</div>
+</div>
+<div class="admin-bar">
+<div class="chip" id="shopStatus">وضعیت فروش: باز</div>
+<button id="btnAdmin">ورود مدیر</button>
+<button id="btnExport" class="ghost">صادرات داده</button>
+</div>
+</header>
+
+<main>
+<section>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+<h2 style="margin:0">محصولات</h2>
+<div style="display:flex;gap:8px">
+<input id="search" placeholder="جستجو در محصولات" style="padding:8px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit">
+<select id="sort" style="padding:8px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit">
+<option value="default">مرتب‌سازی</option>
+<option value="price_asc">قیمت: کم → زیاد</option>
+<option value="price_desc">قیمت: زیاد → کم</option>
+</select>
+</div>
+</div>
+
+<div class="products card" id="products"></div>
+</section>
+
+<aside>
+<div class="card">
+<h3 style="margin-top:0">سبد خرید</h3>
+<div class="cart-list" id="cartList"></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<div style="color:var(--muted)">جمع</div>
+<div id="total" style="font-weight:800">0 تومان</div>
+</div>
+<div style="display:flex;gap:8px">
+<button id="checkout">تکمیل خرید</button>
+<button id="clearCart" class="ghost">پاک کردن</button>
+</div>
+</div>
+
+<div style="height:14px"></div>
+
+<div class="card">
+<h4 style="margin-top:0">درباره فروشگاه</h4>
+<p id="aboutText" style="color:var(--muted);font-size:13px;margin:0 0 10px">زعفران با کیفیت عالی، بسته‌بندی زیبا و ارسال سریع. می‌توانید محصولات را از پنل مدیر ویرایش کنید.</p>
+<button id="openAdminPanel" class="ghost">پنل مدیر</button>
+</div>
+</aside>
+</main>
+
+<footer>
+ساخته‌شده با ❤️ — نسخه آفلاین (بدون نیاز به سرور). برای انتشار رایگان از GitHub Pages استفاده کنید.
+</footer>
+</div>
+
+<div id="modal" class="modal">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<strong id="modalTitle">فرم</strong>
+<button id="closeModal" class="ghost">بستن</button>
+</div>
+<div id="modalBody"></div>
+</div>
+</div>
+
+<script>
+const DEFAULT_DATA={
+shopOpen:true,
+about:'زعفران با کیفیت عالی، بسته‌بندی زیبا و ارسال سریع. پشتیبانی 24 ساعته.',
+products:[
+{id:'p1',title:'زعفران دسته یک - ۱ گرم',price:120000,desc:'زعفران خالص و خشک شده',img:'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=0'},
+{id:'p2',title:'زعفران پوشال - ۰.۵ گرم',price:70000,desc:'بسته‌بندی لوکس',img:'https://images.unsplash.com/photo-1600180758895-5fb01b3d7f4f?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=1'},
+{id:'p3',title:'پک هدیه 3 عددی',price:320000,desc:'مناسب برای کادو',img:'https://images.unsplash.com/photo-1524594154909-ff2f1c17b4d1?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=2'}
+]
+};
+const productsEl=document.getElementById('products');
+const cartList=document.getElementById('cartList');
+const totalEl=document.getElementById('total');
+const shopStatus=document.getElementById('shopStatus');
+const aboutText=document.getElementById('aboutText');
+const modal=document.getElementById('modal');
+const modalBody=document.getElementById('modalBody');
+const modalTitle=document.getElementById('modalTitle');
+
+function loadData(){
+const raw=localStorage.getItem('saffron_data');
+if(!raw)return DEFAULT_DATA;
+try{return JSON.parse(raw);}catch(e){return DEFAULT_DATA}
+}
+function saveData(d){localStorage.setItem('saffron_data',JSON.stringify(d));}
+let DATA=loadData();
+let CART=JSON.parse(localStorage.getItem('saffron_cart')||'[]');
+function formatPrice(n){return n.toLocaleString('fa-IR')+' تومان';}
+
+function renderProducts(filter='',sort='default'){
+const list=DATA.products.slice();
+let filtered=list.filter(p=>(p.title+' '+p.desc).toLowerCase().includes(filter.toLowerCase()));
+if(sort==='price_asc')filtered.sort((a,b)=>a.price-b.price);
+if(sort==='price_desc')filtered.sort((a,b)=>b.price-a.price);
+productsEl.innerHTML='';
+if(filtered.length===0){productsEl.innerHTML='<div class="card">هیچ محصولی یافت نشد.</div>';return;}
+for(const p of filtered){
+const div=document.createElement('div');div.className='card';
+div.innerHTML=`
+<div class="p-image" style="background-image:url('${p.img}')"></div>
+<div class="p-title">${p.title}</div>
+<div class="p-desc">${p.desc}</div>
+<div class="p-footer">
+<div class="price">${formatPrice(p.price)}</div>
+<div>
+<button data-id="${p.id}" class="add">افزودن</button>
+<button data-id="${p.id}" class="edit ghost">ویرایش</button>
+</div>
+</div>
+`;
+productsEl.appendChild(div);
+}
+productsEl.querySelectorAll('button.add').forEach(b=>b.addEventListener('click',e=>{addToCart(e.target.dataset.id);}));
+productsEl.querySelectorAll('button.edit').forEach(b=>b.addEventListener('click',e=>{if(!isAdmin())return alert('ابتدا وارد پنل مدیر شوید.');openEditProduct(e.target.dataset.id);}));
+}
+
+function saveCart(){localStorage.setItem('saffron_cart',JSON.stringify(CART));}
+function addToCart(id){
+if(!DATA.shopOpen){return alert('فروشگاه در حال حاضر بسته است.');}
+const prod=DATA.products.find(x=>x.id===id);if(!prod)return;
+const existing=CART.find(i=>i.id===id);
+if(existing)existing.qty++;
+else CART.push({id:prod.id,title:prod.title,price:prod.price,img:prod.img,qty:1});
+saveCart();renderCart();
+}
+function renderCart(){
+cartList.innerHTML='';
+if(CART.length===0){cartList.innerHTML='<div style="color:var(--muted);">سبد خرید خالی است.</div>';totalEl.innerText='0 تومان';return;}
+let sum=0;
+for(const it of CART){
+sum+=it.price*it.qty;
+const div=document.createElement('div');div.className='cart-item';
+div.innerHTML=`
+<img src="${it.img}" alt="">
+<div style="flex:1">
+<div style="font-weight:700">${it.title}</div>
+<div style="color:var(--muted);font-size:13px">${formatPrice(it.price)}</div>
+</div>
+<div class="qty">
+<button data-id="${it.id}" class="minus ghost">−</button>
+<div>${it.qty}</div>
+<button data-id="${it.id}" class="plus">+</button>
+</div>
+`;
+cartList.appendChild(div);
+}
+totalEl.innerText=formatPrice(sum);
+cartList.querySelectorAll('button.plus').forEach(b=>b.addEventListener('click',e=>{changeQty(e.target.dataset.id,1);}));
+cartList.querySelectorAll('button.minus').forEach(b=>b.addEventListener('click',e=>{changeQty(e.target.dataset.id,-1);}));
+}
+function changeQty(id,delta){const it=CART.find(x=>x.id===id);if(!it)return;it.qty+=delta;if(it.qty<=0)CART=CART.filter(x=>x.id!==id);saveCart();renderCart();}
+document.getElementById('clearCart').addEventListener('click',()=>{CART=[];saveCart();renderCart();});
+
+document.getElementById('checkout').addEventListener('click',()=>{
+if(CART.length===0)return alert('سبد خرید خالی است.');
+const name=prompt('نام گیرنده را وارد کنید:');if(!name)return alert('نام وارد نشد. خرید لغو شد.');
+const phone=prompt('شماره تماس:');if(!phone)return alert('شماره تماس وارد نشد. خرید لغو شد.');
+alert('پرداخت موفق (شبیه‌سازی). سفارش شما ثبت شد.');
+CART=[];saveCart();renderCart();
+});
+
+document.getElementById('search').addEventListener('input',e=>renderProducts(e.target.value,document.getElementById('sort').value));
+document.getElementById('sort').addEventListener('change',e=>renderProducts(document.getElementById('search').value,e.target.value));
+
+document.getElementById('closeModal').addEventListener('click',closeModal);
+function openModal(title,contentHtml){modalTitle.innerText=title;modalBody.innerHTML=contentHtml;modal.classList.add('open');}
+function closeModal(){modal.classList.remove('open');modalBody.innerHTML='';}
+
+const ADMIN_KEY='saffron_admin';
+function isAdmin(){return localStorage.getItem(ADMIN_KEY)==='1';}
+document.getElementById('btnAdmin').addEventListener('click',()=>{
+if(isAdmin()){if(confirm('خروج از حالت مدیر؟')){localStorage.removeItem(ADMIN_KEY);updateAdminUI();}}
+else{const pass=prompt('رمز مدیر را وارد کنید:');if(pass===(localStorage.getItem('saffron_pass')||'admin')){localStorage.setItem(ADMIN_KEY,'1');updateAdminUI();alert('ورود مدیر با موفقیت انجام شد.');}else alert('رمز نادرست');}});
+function updateAdminUI(){
+if(isAdmin()){
+document.getElementById('btnAdmin').innerText='خروج مدیر';
+document.querySelectorAll('.edit').forEach(b=>b.style.display='inline-block');
+}else{
+document.getElementById('btnAdmin').innerText='ورود مدیر';
+document.querySelectorAll('.edit').forEach(b=>b.style.display='none');
+}
+shopStatus.innerText=DATA.shopOpen?'وضعیت فروش: باز':'وضعیت فروش: بسته';
+aboutText.innerText=DATA.about;
+}
+document.getElementById('openAdminPanel').addEventListener('click',()=>{if(!isAdmin())return alert('ابتدا وارد پنل مدیر شوید.');openAdminPanel();});
+function openAdminPanel(){
+const content=`
+<div style="display:flex;flex-direction:column;gap:8px">
+<label>شرح فروشگاه</label>
+<textarea id="adminAbout" rows="3">${DATA.about}</textarea>
+<label>وضعیت فروش</label>
+<select id="adminShopOpen"><option value="1">باز</option><option value="0">بسته</option></select>
+<label>رمز مدیر (خالی بگذارید تغییری نمی‌کند)</label>
+<input id="adminPass" placeholder="رمز جدید">
+<div style="display:flex;gap:8px;justify-content:flex-end">
+<button id="addProductBtn">افزودن محصول جدید</button>
+<button id="saveAdmin">ذخیره</button>
+<button id="exportBtn" class="ghost">صادرات (JSON)</button>
+<button id="importBtn" class="ghost">وارد کردن (JSON)</button>
+</div>
+<div id="adminProducts" style="margin-top:8px"></div>
+</div>
+`;
+openModal('پنل مدیریت',content);
+document.getElementById('adminShopOpen').value=DATA.shopOpen?'1':'0';
+document.getElementById('saveAdmin').addEventListener('click',()=>{
+DATA.about=document.getElementById('adminAbout').value;
+DATA.shopOpen=document.getElementById('adminShopOpen').value==='1';
+const newPass=document.getElementById('adminPass').value.trim();
+if(newPass)localStorage.setItem('saffron_pass',newPass);
+saveData(DATA);updateAdminUI();closeModal();alert('تغییرات ذخیره شد.');
+});
+document.getElementById('addProductBtn').addEventListener('click',()=>openNewProduct());
+document.getElementById('exportBtn').addEventListener('click'=>{const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='saffron-data.json';a.click();URL.revokeObjectURL(url);});
+document.getElementById('importBtn').addEventListener('click',()=>{
+const txt=prompt('لطفاً JSON داده‌ها را وارد کنید یا مسیر فایل را پیست نمایید.');
+try{const d=JSON.parse(txt);DATA=d;saveData(DATA);renderProducts();updateAdminUI();alert('داده‌ها وارد شد.');}catch(e){alert('JSON معتبر نیست.');}
+});
+renderAdminProducts();
+}
+
+function openEditProduct(id){
+const p=DATA.products.find(x=>x.id===id);if(!p)return;
+const content=`<label>نام محصول</label><input id="editTitle" value="${p.title}">
+<label>توضیحات</label><textarea id="editDesc" rows="2">${p.desc}</textarea>
+<label>قیمت</label><input id="editPrice" type="number" value="${p.price}">
+<label>آدرس عکس</label><input id="editImg" value="${p.img}">
+<div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px">
+<button id="saveEdit">ذخیره</button>
+<button id="deleteProd" class="ghost">حذف</button>
+</div>`;
+openModal('ویرایش محصول',content);
+document.getElementById('saveEdit').addEventListener('click',()=>{
+p.title=document.getElementById('editTitle').value;
+p.desc=document.getElementById('editDesc').value;
+p.price=parseInt(document.getElementById('editPrice').value);
+p.img=document.getElementById('editImg').value;
+saveData(DATA);renderProducts();closeModal();
+});
+document.getElementById('deleteProd').addEventListener('click',()=>{
+if(confirm('حذف شود؟')){DATA.products=DATA.products.filter(x=>x.id!==p.id);saveData(DATA);renderProducts();closeModal();}
+});
+}
+function openNewProduct(){
+const content=`<label>نام محصول</label><input id="newTitle">
+<label>توضیحات</label><textarea id="newDesc" rows="2"></textarea>
+<label>قیمت</label><input id="newPrice" type="number">
+<label>آدرس عکس</label><input id="newImg">
+<div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px">
+<button id="saveNew">افزودن</button>
+<button class="ghost" id="cancelNew">لغو</button>
+</div>`;
+openModal('افزودن محصول جدید',content);
+document.getElementById('saveNew').addEventListener('click',()=>{
+const id='p'+Date.now();
+const newP={id:id,title:document.getElementById('newTitle').value,desc:document.getElementById('newDesc').value,price:parseInt(document.getElementById('newPrice').value),img:document.getElementById('newImg').value};
+DATA.products.push(newP);saveData(DATA);renderProducts();closeModal();
+});
+document.getElementById('cancelNew').addEventListener('click',closeModal);
+}
+function renderAdminProducts(){
+const el=document.getElementById('adminProducts');if(!el)return;
+el.innerHTML='';
+DATA.products.forEach(p=>{
+const d=document.createElement('div');d.className='chip';d.innerText=p.title;el.appendChild(d);
+});
+}
+
+renderProducts();
+renderCart();
+updateAdminUI();
+</script>
+</body>
+</html>
