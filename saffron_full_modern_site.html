@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>فروشگاه زعفران</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background: #faf7f2;
+            color: #333;
+        }
+        header {
+            background: #b30e0e;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        nav {
+            background: #fff;
+            padding: 10px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            border-bottom: 1px solid #ddd;
+        }
+        nav a {
+            text-decoration: none;
+            color: #b30e0e;
+            font-weight: bold;
+        }
+        .hero {
+            background: url('data:image/jpeg;base64,') center/cover no-repeat;
+            padding: 60px 20px;
+            text-align: center;
+            color: #b30e0e;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1100px;
+            margin: auto;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .price {
+            color: #b30e0e;
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        button {
+            background: #b30e0e;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #8e0c0c; }
+
+        /* سبد خرید */
+        #cartBox {
+            position: fixed;
+            left: 10px;
+            bottom: 10px;
+            background: #fff;
+            border-radius: 10px;
+            width: 260px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 15px;
+        }
+        #cartItems { max-height: 200px; overflow-y: auto; }
+        .contact {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>فروشگاه زعفران</header>
+
+    <nav>
+        <a href="#products">محصولات</a>
+        <a href="#contact">تماس با ما</a>
+        <a href="#about">درباره ما</a>
+    </nav>
+
+    <div class="hero">زعفران اصل قاینات – کیفیت صادراتی</div>
+
+    <div class="container" id="products">
+        <h2>محصولات</h2>
+        <div class="products">
+
+            <div class="card">
+                <img src="https://uploadkon.ir/uploads/8a7adb_IMG_20240110_023948_894.jpg" />
+                <h3>زعفران نگین یک گرمی</h3>
+                <div class="price">120٬000 تومان</div>
+                <button onclick="addToCart('زعفران نگین 1 گرمی',120000)">افزودن به سبد</button>
+            </div>
+
+            <div class="card">
+                <img src="https://uploadkon.ir/uploads/8a7adb_IMG_20240110_023948_894.jpg" />
+                <h3>زعفران سوپر نگین 2 گرمی</h3>
+                <div class="price">230٬000 تومان</div>
+                <button onclick="addToCart('سوپر نگین 2 گرمی',230000)">افزودن به سبد</button>
+            </div>
+
+            <div class="card">
+                <img src="https://uploadkon.ir/uploads/8a7adb_IMG_20240110_023948_894.jpg" />
+                <h3>زعفران دسته 5 گرمی</h3>
+                <div class="price">520٬000 تومان</div>
+                <button onclick="addToCart('زعفران دسته 5 گرمی',520000)">افزودن به سبد</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container" id="contact">
+        <h2>تماس با ما</h2>
+        <div class="contact">
+            <p>برای ثبت سفارش یا پرسیدن سوال، فرم زیر را پر کنید:</p>
+            <input type="text" id="name" placeholder="نام شما">
+            <input type="text" id="phone" placeholder="شماره تماس">
+            <textarea id="msg" rows="4" placeholder="پیام شما"></textarea>
+            <button onclick="sendOrder()">ارسال</button>
+            <p id="status"></p>
+        </div>
+    </div>
+
+    <div class="container" id="about">
+        <h2>درباره ما</h2>
+        <p>
+            فروشگاه ما با بیش از ۱۰ سال تجربه در حوزه زعفران، محصولات کاملاً اصل و به‌صورت مستقیم از کشاورز عرضه می‌کند.
+        </p>
+    </div>
+
+    <!-- سبد خرید -->
+    <div id="cartBox">
+        <h3>🛒 سبد خرید</h3>
+        <div id="cartItems"></div>
+        <div id="cartTotal">جمع کل: 0 تومان</div>
+    </div>
+
+
+    <script>
+        let cart = [];
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+        }
+
+        function updateCart() {
+            const box = document.getElementById("cartItems");
+            box.innerHTML = "";
+            let total = 0;
+
+            cart.forEach(item => {
+                box.innerHTML += `<p>${item.name} - ${item.price.toLocaleString()} تومان</p>`;
+                total += item.price;
+            });
+
+            document.getElementById("cartTotal").innerText = "جمع کل: " + total.toLocaleString() + " تومان";
+        }
+
+        function sendOrder() {
+            let name = document.getElementById("name").value;
+            let phone = document.getElementById("phone").value;
+            let msg = document.getElementById("msg").value;
+
+            if (!name || !phone) {
+                document.getElementById("status").innerText = "لطفاً نام و شماره تماس را وارد کنید";
+                return;
+            }
+
+            document.getElementById("status").innerText = "پیام شما ثبت شد. با شما تماس می‌گیریم.";
+        }
+    </script>
+
+</body>
+</html>
